@@ -1,0 +1,10 @@
+/*
+ * buzzer.c
+ *
+ *  Created on: Jul 21, 2024
+ *      Author: Administrator
+ */
+#include "Headers/buzzer.h"
+
+void Buzzer_init()
+

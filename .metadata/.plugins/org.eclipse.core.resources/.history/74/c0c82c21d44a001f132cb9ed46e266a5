@@ -1,0 +1,45 @@
+/*
+ * Control_ECU.c
+ *
+ *  Created on: Jul 21, 2024
+ *      Author: Administrator
+ */
+#include "Headers/std_types.h"
+#include "Headers/common_macros.h"
+#include <util/delay.h>
+#include "avr/io.h"
+#include "Headers/uart2.h"
+#include "Headers/buzzer.h"
+#include "Headers/external_eeprom.h"
+#define MC2_READY 0x10
+unsigned char Main_pass[6];
+unsigned char EEPROM_pass[6];
+/*UART_ConfigType UART_config;*/
+
+
+/*******************************************************************************
+ *                      Functions Prototypes                                   *
+ *******************************************************************************/
+char strcmpp(const unsigned char *pass1 , const unsigned char *pass2);
+int main(){
+	/*UART_config.baud_rate = 9600;
+	UART_config.bit_data = BIT_8;
+	UART_config.parity = EVEN;
+	UART_config.stop_bit=ONE;
+	UART_init(&UART_config);*/
+	EEPROM_init();
+	Buzzer_init() ;
+	//Buzzer_on();
+	UART_init(9600);
+	UART_receiveString(Main_pass);
+	EEPROM_writeString(0x0311,Main_pass);
+	EEPROM_readString(0x0311,EEPROM_pass,5);
+	if (strcmpp(EEPROM_pass,Main_pass)){
+		Buzzer_on();
+	}
+	while(1){
+
+	}
+	return 0;
+}
+

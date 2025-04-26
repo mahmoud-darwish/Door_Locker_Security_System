@@ -1,0 +1,19 @@
+/*
+ * buzzer.c
+ *
+ *  Created on: Jul 21, 2024
+ *      Author: Administrator
+ */
+#include "Headers/buzzer.h"
+#include "avr/io.h"
+void Buzzer_init(){
+	DDRC |= (1<<PC0);
+	PORTC &= ~(1<<PC0);
+}
+void Buzzer_on(void){
+	PORTC |= (1 << PC0);
+}
+void Buzzer_off(void) {
+	PORTC &= ~(1<<PC0);
+}
+

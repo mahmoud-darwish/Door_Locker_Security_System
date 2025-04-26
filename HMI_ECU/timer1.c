@@ -1,0 +1,78 @@
+/*
+ * timer1.c
+ *
+ *  Created on: Jul 21, 2024
+ *      Author: Administrator
+ */
+
+#include "Headers/timer1.h"
+#include "Headers/common_macros.h"
+#include "Headers/std_types.h"
+#include "avr/io.h"
+#include <avr/interrupt.h>
+static volatile void (*g_callBackPtr)(void) = NULL_PTR;
+ISR(TIMER1_COMPA_vect) {
+	if (g_callBackPtr !=  NULL_PTR){
+		(*g_callBackPtr)();
+	}
+}
+ISR(TIMER1_OVF_vect) {
+	if (g_callBackPtr !=  NULL_PTR){
+			(*g_callBackPtr)();
+		}
+}
+
+void Timer1_init(const Timer1_ConfigType * Config_Ptr){
+	SET_BIT(TCCR1A,FOC1A);
+	SET_BIT(TCCR1A,FOC1A);
+
+
+	TCNT1 = Config_Ptr -> initial_value;
+	if(Config_Ptr->mode == NORMAL){
+		CLEAR_BIT(TCCR1A,WGM10);
+		CLEAR_BIT(TCCR1A,WGM11);
+		CLEAR_BIT(TCCR1B,WGM12);
+		CLEAR_BIT(TCCR1B,WGM13);
+		TCCR1B =  TCCR1B | (Config_Ptr->prescaler & 0x7 );
+		SET_BIT(TIMSK,TOIE1);/*interrupt enable*/
+	}
+	else if(Config_Ptr->mode == COMPARE){
+		CLEAR_BIT(TCCR1A,WGM10);
+		CLEAR_BIT(TCCR1A,WGM11);
+		TCCR1A = 0;
+		SET_BIT(TCCR1B,WGM12);
+		CLEAR_BIT(TCCR1B,WGM13);
+		TCCR1B =  TCCR1B | (Config_Ptr->prescaler & 0x7 );
+		OCR1A =Config_Ptr -> compare_value;
+		SET_BIT(TIMSK,OCIE1A);/*interrupt enable*/
+	}
+
+	SREG |= (1 << 7);
+
+
+}
+
+void Timer1_setCallBack(void(*a_ptr)(void)){
+	g_callBackPtr = a_ptr;
+}
+
+void Timer1_deInit(void){
+	TCNT1 = 0;
+	OCR1A = 0;
+	TCCR1B = TCCR1B & 0x20;
+	TCCR1A = 0;
+	g_callBackPtr = NULL_PTR;
+	CLEAR_BIT(TIMSK,TOIE1);
+	CLEAR_BIT(TIMSK,OCIE1A);
+	SREG &= ~(1 << 7);
+
+}
+
+
+
+
+
+
+
+
+
